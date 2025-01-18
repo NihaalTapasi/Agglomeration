@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - File Analysis and Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #4CAF50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .feature {
+            flex: 1 1 calc(33.333% - 20px);
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature h3 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .feature {
+                flex: 1 1 100%;
+            }
+
+            h2 {
+                font-size: 1.75em;
+            }
+        }
+        .navigation {
+            background: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+        }
+        *{
+            padding: 0;
+            margin: 0px;
+        }
+        a{
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navigation">
+        <a href="mainpage.html" style="color: white;">HOME</a>
+        <a href="about.html" style="color: white;">ABOUT</a>
+        <a href="#" id="logout" style="color: white; " >LOGOUT</a>
+    </nav>
+    <header>
+        <h1>About Us</h1>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2>Who We Are</h2>
+            <p>
+                Welcome to our platform! We specialize in helping users analyze their files and transform the data into visually engaging and interactive graphs. Whether you're working on complex data projects or need a collaborative environment for real-time problem-solving, our tool is designed to make the process seamless and efficient.
+            </p>
+        </section>
+
+        <section>
+            <h2>Our Mission</h2>
+            <p>
+                Our mission is to empower individuals and teams to uncover insights from their data effortlessly. By offering intuitive file analysis tools and live collaboration capabilities, we strive to enhance productivity and foster creativity.
+            </p>
+        </section>
+
+        <section>
+            <h2>Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <h3>Advanced File Analysis</h3>
+                    <p>
+                        Upload and analyze files in various formats with our state-of-the-art parsing and processing tools.
+                    </p>
+                </div>
+                <div class="feature">
+                    <h3>Interactive Graphs</h3>
+                    <p>
+                        Generate visually compelling graphs that make your data easy to understand and explore.
+                    </p>
+                </div>
+                <div class="feature">
+                    <h3>Live Collaboration</h3>
+                    <p>
+                        Work with your team in real-time, share insights, and build solutions together, no matter where you are.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Why Choose Us?</h2>
+            <p>
+                Our platform stands out because of its user-friendly interface, robust analytical capabilities, and innovative collaborative features. Whether you're an individual professional or part of a large team, our tool adapts to your needs, making it the perfect choice for data-driven projects.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>We think that you make the right choice by choosing us.</p>
+    </footer>
+</body>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database-compat.js"></script>
+<script>
+     const firebaseConfig = {
+            apiKey: "AIzaSyBIfFs_76KN0Mx6vLbeni8j2QIqEDfOOLE",
+            authDomain: "authentication-final-4e0cf.firebaseapp.com",
+            databaseURL: "https://authentication-final-4e0cf-default-rtdb.firebaseio.com/",
+            projectId: "authentication-final-4e0cf",
+            storageBucket: "authentication-final-4e0cf.firebasestorage.app",
+            messagingSenderId: "899696975212",
+            appId: "1:899696975212:web:3aa5337e8d6014de98a749"
+        }
+        firebase.initializeApp(firebaseConfig);
+    function logout() {
+            firebase.auth().signOut().then(() => {
+                alert("You have been logged out.");
+                window.location.href = "loginpage.html";
+            }).catch(error => {
+                alert("Logout failed");
+            });
+        }
+
+        document.getElementById('logout').addEventListener('click', logout);
+        window.onload = fetchdata;
+</script>
+</html>

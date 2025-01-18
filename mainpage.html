@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose Chart Type</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0px;
+        }
+        .body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f8e10f, #30fc25); 
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: blue;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin: 0 20px 40px;
+            line-height: 1.6;
+            color: black;
+        }
+        .navigation {
+            background: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+        }
+        #container {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            color: #fff;
+            background: linear-gradient(135deg, #ff0000, #ff758c); 
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); 
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0d00ff, #7effda);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3); 
+            transform: translateY(-5px); 
+        }
+        a{
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column; 
+            }
+
+            button {
+                width: 80%; 
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navigation">
+        <a href="mainpage.html" style="color: white;">HOME</a>
+        <a href="about.html" style="color: white;">ABOUT</a>
+        <a href="#" id="logout" style="color: white; " >LOGOUT</a>
+    </nav>
+    <div class="body">
+    <h1>Select Your Chart Type</h1>
+    <p>Graphs and charts are powerful tools for visualizing data. They help us identify trends, make comparisons, and better understand complex information at a glance. 
+       Whether you're exploring categories in a pie chart or analyzing trends with a bar graph, these visual representations transform raw data into meaningful insights.</p>
+    <div id="container">
+        <button id="pieChartButton" onclick="window.location.href='piechart.html'">View Pie Chart</button>
+        <button id="barGraphButton" onclick="window.location.href='bargraph.html'">View Bar Graph</button>
+    </div>
+</div>
+</body>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database-compat.js"></script>
+<script>
+     const firebaseConfig = {
+            apiKey: "AIzaSyBIfFs_76KN0Mx6vLbeni8j2QIqEDfOOLE",
+            authDomain: "authentication-final-4e0cf.firebaseapp.com",
+            databaseURL: "https://authentication-final-4e0cf-default-rtdb.firebaseio.com/",
+            projectId: "authentication-final-4e0cf",
+            storageBucket: "authentication-final-4e0cf.firebasestorage.app",
+            messagingSenderId: "899696975212",
+            appId: "1:899696975212:web:3aa5337e8d6014de98a749"
+        }
+        firebase.initializeApp(firebaseConfig);
+    function logout() {
+            firebase.auth().signOut().then(() => {
+                alert("You have been logged out.");
+                window.location.href = "loginpage.html";
+            }).catch(error => {
+                alert("Logout failed");
+            });
+        }
+
+        document.getElementById('logout').addEventListener('click', logout);
+        window.onload = fetchdata;
+</script>
+</html>

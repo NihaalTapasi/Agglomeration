@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic CSV Analysis with Proportional Charts</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: gray;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 20px 0;
+            font-size: 2.5em;
+            color: #fff;
+        }
+
+        #controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        #controls label {
+            display: block;
+            font-size: 1em;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        #controls input[type="file"],
+        #controls select,
+        #controls button {
+            display: block;
+            width: calc(100% - 20px);
+            margin: 10px auto 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        #controls button {
+            background-color: #6a89cc;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #controls button:hover {
+            background-color: #4a69bd;
+        }
+
+        #chart-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        canvas {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic CSV Analysis with Proportional Charts</h1>
+
+    <div id="controls">
+        <label for="csvFileInput">Upload a CSV file:</label>
+        <input type="file" id="csvFileInput" accept=".csv">
+
+        <label for="xAxisSelect">Select Field to Analyze:</label>
+        <select id="xAxisSelect"></select>
+
+        <label for="quantitySelect">Select Quantity Field:</label>
+        <select id="quantitySelect"></select>
+
+        <button id="updateGraph">Update Chart</button>
+    </div>
+
+    <div id="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const csvFileInput = document.getElementById('csvFileInput');
+        const xAxisSelect = document.getElementById('xAxisSelect');
+        const quantitySelect = document.getElementById('quantitySelect');
+        const updateGraphButton = document.getElementById('updateGraph');
+        const chartCanvas = document.getElementById('myChart');
+        let myChart;
+        let csvData;
+
+        csvFileInput.addEventListener('change', handleFileSelect);
+        updateGraphButton.addEventListener('click', updateGraph);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const csvText = e.target.result;
+                    csvData = parseCSV(csvText);
+                    if (csvData) {
+                        populateDropdowns(csvData.headers);
+                    } else {
+                        alert("Error parsing CSV.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim() !== "");
+            if (lines.length <= 1) return null;
+
+            const headers = lines[0].split(',').map(header => header.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                if (values.length !== headers.length) continue;
+                const entry = {};
+                for (let j = 0; j < headers.length; j++) {
+                    entry[headers[j]] = values[j];
+                }
+                data.push(entry);
+            }
+            return { headers, data };
+        }
+
+        function populateDropdowns(headers) {
+            xAxisSelect.innerHTML = '';
+            quantitySelect.innerHTML = '';
+
+            headers.forEach(header => {
+                const option1 = document.createElement('option');
+                option1.value = header;
+                option1.text = header;
+                xAxisSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = header;
+                option2.text = header;
+                quantitySelect.appendChild(option2);
+            });
+        }
+
+        function updateGraph() {
+            if (!csvData) {
+                alert("Please upload a CSV file.");
+                return;
+            }
+
+            const xAxisColumn = xAxisSelect.value;
+            const quantityColumn = quantitySelect.value;
+
+            if (!xAxisColumn || !quantityColumn) {
+                alert("Please select fields to analyze.");
+                return;
+            }
+
+            // Population analysis: Ensure quantity is treated as numeric (population numbers)
+            const valueCounts = {};
+            if (quantityColumn.toLowerCase().includes('population')) {
+                // Assuming it's population data
+                csvData.data.forEach(row => {
+                    const xValue = row[xAxisColumn]; // e.g., Country name
+                    const populationValue = parseInt(row[quantityColumn].replace(/,/g, '')); // Remove commas for numbers
+
+                    if (!valueCounts[xValue]) {
+                        valueCounts[xValue] = 0;
+                    }
+                    valueCounts[xValue] += populationValue;
+                });
+            } else {
+                // For student data or other types of categorical data
+                csvData.data.forEach(row => {
+                    const xValue = row[xAxisColumn];
+                    const quantityValue = row[quantityColumn];
+
+                    if (!valueCounts[xValue]) {
+                        valueCounts[xValue] = 0;
+                    }
+                    valueCounts[xValue] += parseInt(quantityValue); // Convert to number if needed
+                });
+            }
+
+            const labels = Object.keys(valueCounts);
+            const data = labels.map(label => valueCounts[label]);
+
+            const backgroundColors = labels.map((_, index) => {
+                const hue = (index * 360 / labels.length) % 360;
+                return `hsl(${hue}, 70%, 70%)`;
+            });
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(chartCanvas, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Proportional Data',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const label = tooltipItem.label || '';
+                                    const value = tooltipItem.raw || 0;
+                                    return `${label}: ${value}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

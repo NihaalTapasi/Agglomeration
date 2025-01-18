@@ -1,0 +1,102 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: skyblue;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    text-align: center;
+    background: rgba(233, 250, 3, 0.564);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px); 
+    width: 320px;
+}
+
+
+.websitelogo {
+    display: block;
+    width: 150px;
+    height: auto;
+    margin: 0 auto;
+}
+
+
+.title {
+    font-size: 24px;
+    margin: 20px 0 10px 0;
+    color: black;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: black;
+    margin-bottom: 20px;
+}
+
+
+.inputtags {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 100%;
+    max-width: 260px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+
+.button-group {
+    margin-top: 20px;
+}
+
+.buttons {
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.buttons.login {
+    background-color: #2575fc;
+    transition: background 0.3s ease;
+}
+
+.buttons.signup {
+    background-color: #6a11cb;
+    transition: background 0.3s ease;
+}
+
+.buttons.login:hover {
+    background-color: #1b60d1;
+}
+
+.buttons.signup:hover {
+    background-color: #4f0bbd;
+}
+
+
+@media (max-width: 480px) {
+    .container {
+        width: 90%;
+    }
+
+    .inputtags {
+        width: 100%;
+    }
+}

@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV Data Analysis and Bar Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: skyblue;
+            color: black;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #controls {
+            background:goldenrod ;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 500px;
+            /* max-width: 900px; */
+            margin-bottom: 30px;
+            margin-right: 30pxs;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        select, input, button {
+            width: calc(100% - 20px);
+            max-width: 300px;
+            padding: 10px;
+            margin: 5px 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        select {
+            background-color: #fff;
+            color: #333;
+        }
+
+        input {
+            background-color: #fff;
+            color: #333;
+        }
+
+        button {
+            background-color: #ff5722;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #e64a19;
+            transform: translateY(-2px);
+        }
+
+        #chart-container {
+            width: 65%;
+            height: 60vh;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            padding-left: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 50px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            select, input, button {
+                width: calc(100% - 40px);
+            }
+
+            #chart-container {
+                width: 95vw;
+            }
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1>CSV Data Analysis</h1>
+
+    <div id="controls">
+        <input type="file" id="csvFileInput" accept=".csv" />
+        <label for="xAxisSelect">X-Axis (Category):</label>
+        <select id="xAxisSelect"></select>
+        <label for="valueSelect">Value to Display on Y-axis:</label>
+        <select id="valueSelect"></select>
+        <label for="filterColumn">Filter Column:</label>
+        <select id="filterColumn"></select>
+        <input type="text" id="filterValue" placeholder="Filter Value" />
+        <label for="sortOrder">Sort Order:</label>
+        <select id="sortOrder">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+        <button id="updateGraph">Update Graph</button>
+    </div>
+</div>
+
+    <div id="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        
+        const csvFileInput = document.getElementById('csvFileInput');
+        const chartCanvas = document.getElementById('myChart');
+        const xAxisSelect = document.getElementById('xAxisSelect');
+        const valueSelect = document.getElementById('valueSelect');
+        const filterColumnSelect = document.getElementById('filterColumn');
+        const filterValueInput = document.getElementById('filterValue');
+        const updateGraphButton = document.getElementById('updateGraph');
+        const sortOrderSelect = document.getElementById('sortOrder');
+        let myChart;
+        let csvData;
+
+        csvFileInput.addEventListener('change', handleFileSelect);
+        updateGraphButton.addEventListener('click', updateGraph);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const csvText = e.target.result;
+                    csvData = parseCSV(csvText);
+                    if (csvData) {
+                        populateDropdowns(csvData.headers);
+                        updateGraph();
+                    } else {
+                        alert("Error parsing CSV.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim() !== "");
+            if (lines.length <= 1) return null;
+
+            const headers = lines[0].split(',').map(header => header.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                if (values.length !== headers.length) continue;
+                const entry = {};
+                for (let j = 0; j < headers.length; j++) {
+                    entry[headers[j]] = values[j];
+                }
+                data.push(entry);
+            }
+            return { headers, data };
+        }
+
+        function populateDropdowns(headers) {
+            xAxisSelect.innerHTML = '';
+            valueSelect.innerHTML = '';
+            filterColumnSelect.innerHTML = '';
+
+            headers.forEach(header => {
+                const option1 = document.createElement('option');
+                option1.value = header;
+                option1.text = header;
+                xAxisSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = header;
+                option2.text = header;
+                valueSelect.appendChild(option2);
+
+                const option3 = document.createElement('option');
+                option3.value = header;
+                option3.text = header;
+                filterColumnSelect.appendChild(option3);
+            });
+        }
+
+        function updateGraph() {
+            if (!csvData) return;
+
+            const xAxisColumn = xAxisSelect.value;
+            const valueColumn = valueSelect.value; 
+            const filterColumn = filterColumnSelect.value;
+            const filterValue = filterValueInput.value.trim().toLowerCase();
+            const sortOrder = sortOrderSelect.value;
+
+            let filteredData = csvData.data;
+
+            if (filterValue && filterColumn) {
+                filteredData = csvData.data.filter(row =>
+                    row[filterColumn].toLowerCase().includes(filterValue)
+                );
+            }
+
+            const xValues = filteredData.map(row => row[xAxisColumn]);
+            const yValues = filteredData.map(row => row[valueColumn]);
+
+            const valueCounts = {};
+            xValues.forEach((xValue, index) => {
+                const yValue = yValues[index];
+                if (!valueCounts[xValue]) {
+                    valueCounts[xValue] = [];
+                }
+                valueCounts[xValue].push(yValue);
+            });
+
+            let labels = Object.keys(valueCounts);
+            let data = labels.map(label => {
+                const values = valueCounts[label];
+                if (values.every(val => !isNaN(Number(val)))) {
+                    return values.reduce((sum, val) => sum + Number(val), 0);
+                } else {
+                    return values.length;
+                }
+            });
+
+            const combined = labels.map((label, index) => ({ label, value: data[index] }));
+
+            if (labels.every(label => !isNaN(Number(label)))) {
+                combined.sort((a, b) => {
+                    const numA = parseInt(a.label, 10);
+                    const numB = parseInt(b.label, 10);
+                    return sortOrder === 'asc' ? numA - numB : numB - numA;
+                });
+            } else {
+                combined.sort((a, b) => sortOrder === 'asc' ? a.label.localeCompare(b.label) : b.label.localeCompare(a.label));
+            }
+
+            labels = combined.map(item => item.label);
+            data = combined.map(item => item.value);
+
+            const yAxisLabel = "Count of y"; 
+
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(chartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: yAxisLabel,
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'x',
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: labels,
+                            ticks: {
+                                autoSkip: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
